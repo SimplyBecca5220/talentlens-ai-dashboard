@@ -96,12 +96,12 @@ type Candidate = (typeof candidates)[number];
 function TalentLens() {
   const [candidateIndex, setCandidateIndex] = useState(0);
   const [tone, setTone] = useState<Tone>("Direct Founder");
-  const [message, setMessage] = useState(candidates[0].messages["Direct Founder"]);
+  const [message, setMessage] = useState<string>(candidates[0].messages["Direct Founder"]);
   const [processing, setProcessing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [overridden, setOverridden] = useState(false);
   const [sent, setSent] = useState(false);
-  const candidate: Candidate = candidates[candidateIndex];
+  const candidate: Candidate = candidates[candidateIndex] ?? candidates[0];
 
   const regenerate = (nextTone: Tone, nextCandidate: Candidate = candidate) => {
     setTone(nextTone);
@@ -115,6 +115,7 @@ function TalentLens() {
 
   const selectCandidate = (index: number) => {
     const next = candidates[index];
+    if (!next) return;
     setCandidateIndex(index);
     setOverridden(false);
     setMessage(next.messages[tone]);
