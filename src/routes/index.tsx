@@ -113,7 +113,8 @@ function TalentLens() {
   const [message, setMessage] = useState<string>(candidates[0].messages["Direct Founder"]);
   const [processing, setProcessing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [overridden, setOverridden] = useState(false);
+  const [overrides, setOverrides] = useState<string[]>([]);
+  const [edited, setEdited] = useState(false);
   const [sent, setSent] = useState(false);
   const candidate: Candidate = candidates[candidateIndex] ?? candidates[0];
 
@@ -121,6 +122,7 @@ function TalentLens() {
     setTone(nextTone);
     setProcessing(true);
     setSent(false);
+    setEdited(false);
     window.setTimeout(() => {
       setMessage(nextCandidate.messages[nextTone]);
       setProcessing(false);
@@ -131,9 +133,18 @@ function TalentLens() {
     const next = candidates[index];
     if (!next) return;
     setCandidateIndex(index);
-    setOverridden(false);
+    setOverrides([]);
+    setEdited(false);
     setMessage(next.messages[tone]);
     setSent(false);
+  };
+
+  const toggleOverride = (gap: string) =>
+    setOverrides((current) => (current.includes(gap) ? current.filter((item) => item !== gap) : [...current, gap]));
+
+  const editMessage = (next: string) => {
+    setMessage(next);
+    setEdited(true);
   };
 
   useEffect(() => {
