@@ -310,7 +310,7 @@ function Cockpit({ candidate, tone, message, processing, overrides, edited, sent
       </div>
 
       <div className="mt-3">
-        <div className="mb-2 flex items-center justify-between"><label htmlFor="outreach-message" className="font-mono text-[10px] uppercase text-faint">Outreach draft · editable</label>{processing && <span className="flex items-center gap-1 font-mono text-[9px] text-accent"><LoaderCircle className="size-3 animate-spin" /> STREAMING</span>}</div>
+        <div className="mb-2 flex items-center justify-between gap-2"><label htmlFor="outreach-message" className="font-mono text-[10px] uppercase text-faint">Outreach draft · editable</label>{processing ? <span className="flex items-center gap-1 font-mono text-[9px] text-accent"><LoaderCircle className="size-3 animate-spin" /> STREAMING</span> : edited && <span className="flex items-center gap-1 rounded-md bg-cool/10 px-2 py-0.5 font-mono text-[9px] uppercase text-cool"><PencilLine className="size-3" /> Human edited</span>}</div>
         {processing ? <div className="min-h-40 rounded-lg bg-surface p-3 ring-1 ring-line"><SkeletonLines large /></div> : <div className="relative"><textarea id="outreach-message" value={message} onChange={(event) => onMessage(event.target.value)} className="min-h-40 w-full resize-none rounded-lg bg-surface p-3 pr-5 text-sm leading-6 text-ink outline-none ring-1 ring-line focus:ring-2 focus:ring-accent" /><span className="tl-cursor pointer-events-none absolute bottom-4 right-3 h-4 w-1 bg-ink" /></div>}
       </div>
 
