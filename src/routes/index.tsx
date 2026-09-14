@@ -259,9 +259,9 @@ function CandidateReview({ candidate }: { candidate: Candidate }) {
   );
 }
 
-type CockpitProps = { candidate: Candidate; tone: Tone; message: string; processing: boolean; overridden: boolean; sent: boolean; onTone: (tone: Tone) => void; onMessage: (message: string) => void; onOverride: () => void; onRegenerate: () => void; onSend: () => void };
+type CockpitProps = { candidate: Candidate; tone: Tone; message: string; processing: boolean; overrides: string[]; edited: boolean; sent: boolean; onTone: (tone: Tone) => void; onMessage: (message: string) => void; onOverride: (gap: string) => void; onRegenerate: () => void; onSend: () => void };
 
-function Cockpit({ candidate, tone, message, processing, overridden, sent, onTone, onMessage, onOverride, onRegenerate, onSend }: CockpitProps) {
+function Cockpit({ candidate, tone, message, processing, overrides, edited, sent, onTone, onMessage, onOverride, onRegenerate, onSend }: CockpitProps) {
   return (
     <section className="rounded-lg bg-surface/80 p-4 ring-1 ring-line backdrop-blur-md sm:p-5">
       <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
@@ -275,12 +275,24 @@ function Cockpit({ candidate, tone, message, processing, overridden, sent, onTon
       </div>
 
       <div className="mt-3 rounded-lg bg-paper/70 p-3 ring-1 ring-line">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-          <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold uppercase text-warm"><AlertTriangle className="size-3.5 shrink-0" /> Gaps</span>
-          <Button variant="warning" size="sm" className="h-7 shrink-0 px-2 font-mono text-[9px] uppercase" onClick={onOverride}>{overridden ? "Overridden" : "Low confidence · Override"}</Button>
-        </div>
-        <p className={`mt-2 text-xs leading-5 ${overridden ? "text-faint line-through" : "text-sub"}`}>{candidate.gap}</p>
+        <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold uppercase text-warm"><AlertTriangle className="size-3.5 shrink-0" /> Gaps</span>
+        <ul className="mt-2 space-y-2.5">
+          {candidate.gaps.map((gap) => {
+            const isOverridden = overrides.includes(gap.text);
+            return (
+              <li key={gap.text} className="space-y-1.5 border-t border-line pt-2.5 first:border-0 first:pt-0">
+                <p className={`text-xs leading-5 ${isOverridden ? "text-faint line-through" : "text-sub"}`}>{gap.text}</p>
+                {gap.confidence === "low" ? (
+                  <Button variant="warning" size="sm" className="h-7 px-2 font-mono text-[9px] uppercase" onClick={() => onOverride(gap.text)}>{isOverridden ? "Overridden by you" : "Low confidence · Override"}</Button>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-paper px-2 py-1 font-mono text-[9px] uppercase text-faint ring-1 ring-line">High confidence</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </div>
+
 
       <div className="mt-4 grid grid-cols-3 rounded-lg bg-paper p-0.5 ring-1 ring-line" aria-label="Outreach tone">
         {tones.map((item) => <Button key={item} variant="ghost" onClick={() => onTone(item)} disabled={processing} className={`h-auto min-h-10 whitespace-normal px-1.5 py-2 text-[10px] leading-tight ${tone === item ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-sub"}`}>{item}</Button>)}
