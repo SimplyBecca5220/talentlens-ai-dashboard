@@ -165,7 +165,7 @@ function TalentLens() {
         <CandidateReview candidate={candidate} />
         <aside className="hidden lg:block">
           <div className="sticky top-[92px]">
-            <Cockpit candidate={candidate} tone={tone} message={message} processing={processing} overridden={overridden} sent={sent} onTone={regenerate} onMessage={setMessage} onOverride={() => setOverridden(!overridden)} onRegenerate={() => regenerate(tone)} onSend={() => setSent(true)} />
+            <Cockpit candidate={candidate} tone={tone} message={message} processing={processing} overrides={overrides} edited={edited} sent={sent} onTone={regenerate} onMessage={editMessage} onOverride={toggleOverride} onRegenerate={() => regenerate(tone)} onSend={() => setSent(true)} />
           </div>
         </aside>
       </main>
