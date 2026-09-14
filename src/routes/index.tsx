@@ -56,8 +56,15 @@ const candidates = [
     ],
     summary: "Built retrieval and evaluation systems at Latticework, reducing hallucination rates by 31%. Led the launch of a multi-agent research product used by 18 enterprise teams.",
     projects: ["LLM Agents", "PyTorch", "Ray", "Vector DBs", "Kubernetes"],
+    evidence: [
+      { name: "Groundwork Eval", desc: "Retrieval evaluation harness that cut hallucination rates by 31% in production.", tech: "Python, Ray, Vector DBs" },
+      { name: "Atlas Agents", desc: "Multi-agent research product adopted by 18 enterprise teams.", tech: "PyTorch, LangGraph, Kubernetes" },
+    ],
     strengths: ["Deep retrieval and evaluation rigor", "Ships production agent systems", "Strong open-source research record"],
-    gap: "Limited evidence of multi-tenant infrastructure at global scale.",
+    gaps: [
+      { text: "Limited evidence of multi-tenant infrastructure at global scale.", confidence: "low" },
+      { text: "No formal engineering management track record beyond project leads.", confidence: "high" },
+    ],
     messages: {
       "Direct Founder": "Maya — your retrieval work at Latticework is exactly the kind of hard problem we're solving. We're building a new evaluation layer for production AI systems. Would 20 minutes this week be useful?",
       "Technical Deep-Dive": "Hi Maya — I was impressed by your work reducing hallucinations through retrieval evaluation. Our team is tackling similar questions across multi-agent systems, Ray, and production GPU infrastructure. Open to comparing technical notes?",
@@ -81,8 +88,15 @@ const candidates = [
     ],
     summary: "Led a 12-person product engineering group at Relay Commerce. Rebuilt the checkout platform in TypeScript and Go, improving conversion by 14% while cutting deployment time by half.",
     projects: ["React", "TypeScript", "Go", "Design Systems", "Platform"],
+    evidence: [
+      { name: "Checkout Rebuild", desc: "Re-platformed Relay's checkout, lifting conversion 14% and halving deploy time.", tech: "TypeScript, Go, Postgres" },
+      { name: "Relay Design System", desc: "Shared component library adopted across six product surfaces.", tech: "React, Tailwind CSS, Storybook" },
+    ],
     strengths: ["End-to-end product ownership", "Strong technical leadership", "Proven high-scale commerce systems"],
-    gap: "Applied AI experience appears recent and is not yet proven at scale.",
+    gaps: [
+      { text: "Applied AI experience appears recent and is not yet proven at scale.", confidence: "low" },
+      { text: "No exposure to model training or fine-tuning workflows.", confidence: "high" },
+    ],
     messages: {
       "Direct Founder": "Elliot — your record scaling product teams and rebuilding Relay's checkout stood out. We're looking for a hands-on lead to shape an AI-native product from the ground up. Could we talk for 20 minutes?",
       "Technical Deep-Dive": "Hi Elliot — the TypeScript and Go platform work behind Relay's checkout looks highly relevant to our stack. We're designing an AI-native workflow with demanding reliability constraints. Interested in a technical conversation?",
