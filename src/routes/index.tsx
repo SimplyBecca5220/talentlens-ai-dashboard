@@ -268,6 +268,25 @@ function CandidateReview({ candidate }: { candidate: Candidate }) {
           {candidate.projects.map((project, index) => <button key={project} className={`rounded-md px-2.5 py-1.5 text-xs ring-1 transition-colors ${index === 0 ? "bg-accent/10 text-accent ring-accent/20" : "bg-paper text-sub ring-line hover:text-ink"}`}>{project}</button>)}
         </div>
       </section>
+
+      <section className="tl-rise rounded-lg bg-surface/75 p-4 ring-1 ring-line backdrop-blur-md sm:p-5 [animation-delay:180ms]">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase text-sub"><Layers className="size-3.5" /> Verified project evidence</h2>
+          <span className="font-mono text-[11px] text-faint">{candidate.evidence.length} reviewed</span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {candidate.evidence.map((item) => (
+            <article key={item.name} className="rounded-lg bg-paper/70 p-3 ring-1 ring-line">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="min-w-0 truncate text-sm font-semibold">{item.name}</h3>
+                <Check className="size-3.5 shrink-0 text-accent" aria-hidden />
+              </div>
+              <p className="mt-1.5 text-xs leading-5 text-sub">{item.desc}</p>
+              <p className="mt-2 font-mono text-[10px] uppercase text-faint">{item.tech}</p>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
