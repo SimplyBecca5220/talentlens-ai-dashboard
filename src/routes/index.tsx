@@ -11,6 +11,8 @@ import {
   LoaderCircle,
   MapPin,
   MoreHorizontal,
+  Layers,
+  PencilLine,
   RotateCw,
   Send,
   ShieldCheck,
@@ -56,8 +58,15 @@ const candidates = [
     ],
     summary: "Built retrieval and evaluation systems at Latticework, reducing hallucination rates by 31%. Led the launch of a multi-agent research product used by 18 enterprise teams.",
     projects: ["LLM Agents", "PyTorch", "Ray", "Vector DBs", "Kubernetes"],
+    evidence: [
+      { name: "Groundwork Eval", desc: "Retrieval evaluation harness that cut hallucination rates by 31% in production.", tech: "Python, Ray, Vector DBs" },
+      { name: "Atlas Agents", desc: "Multi-agent research product adopted by 18 enterprise teams.", tech: "PyTorch, LangGraph, Kubernetes" },
+    ],
     strengths: ["Deep retrieval and evaluation rigor", "Ships production agent systems", "Strong open-source research record"],
-    gap: "Limited evidence of multi-tenant infrastructure at global scale.",
+    gaps: [
+      { text: "Limited evidence of multi-tenant infrastructure at global scale.", confidence: "low" },
+      { text: "No formal engineering management track record beyond project leads.", confidence: "high" },
+    ],
     messages: {
       "Direct Founder": "Maya — your retrieval work at Latticework is exactly the kind of hard problem we're solving. We're building a new evaluation layer for production AI systems. Would 20 minutes this week be useful?",
       "Technical Deep-Dive": "Hi Maya — I was impressed by your work reducing hallucinations through retrieval evaluation. Our team is tackling similar questions across multi-agent systems, Ray, and production GPU infrastructure. Open to comparing technical notes?",
@@ -81,8 +90,15 @@ const candidates = [
     ],
     summary: "Led a 12-person product engineering group at Relay Commerce. Rebuilt the checkout platform in TypeScript and Go, improving conversion by 14% while cutting deployment time by half.",
     projects: ["React", "TypeScript", "Go", "Design Systems", "Platform"],
+    evidence: [
+      { name: "Checkout Rebuild", desc: "Re-platformed Relay's checkout, lifting conversion 14% and halving deploy time.", tech: "TypeScript, Go, Postgres" },
+      { name: "Relay Design System", desc: "Shared component library adopted across six product surfaces.", tech: "React, Tailwind CSS, Storybook" },
+    ],
     strengths: ["End-to-end product ownership", "Strong technical leadership", "Proven high-scale commerce systems"],
-    gap: "Applied AI experience appears recent and is not yet proven at scale.",
+    gaps: [
+      { text: "Applied AI experience appears recent and is not yet proven at scale.", confidence: "low" },
+      { text: "No exposure to model training or fine-tuning workflows.", confidence: "high" },
+    ],
     messages: {
       "Direct Founder": "Elliot — your record scaling product teams and rebuilding Relay's checkout stood out. We're looking for a hands-on lead to shape an AI-native product from the ground up. Could we talk for 20 minutes?",
       "Technical Deep-Dive": "Hi Elliot — the TypeScript and Go platform work behind Relay's checkout looks highly relevant to our stack. We're designing an AI-native workflow with demanding reliability constraints. Interested in a technical conversation?",
@@ -99,7 +115,8 @@ function TalentLens() {
   const [message, setMessage] = useState<string>(candidates[0].messages["Direct Founder"]);
   const [processing, setProcessing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [overridden, setOverridden] = useState(false);
+  const [overrides, setOverrides] = useState<string[]>([]);
+  const [edited, setEdited] = useState(false);
   const [sent, setSent] = useState(false);
   const candidate: Candidate = candidates[candidateIndex] ?? candidates[0];
 
@@ -107,6 +124,7 @@ function TalentLens() {
     setTone(nextTone);
     setProcessing(true);
     setSent(false);
+    setEdited(false);
     window.setTimeout(() => {
       setMessage(nextCandidate.messages[nextTone]);
       setProcessing(false);
@@ -117,9 +135,18 @@ function TalentLens() {
     const next = candidates[index];
     if (!next) return;
     setCandidateIndex(index);
-    setOverridden(false);
+    setOverrides([]);
+    setEdited(false);
     setMessage(next.messages[tone]);
     setSent(false);
+  };
+
+  const toggleOverride = (gap: string) =>
+    setOverrides((current) => (current.includes(gap) ? current.filter((item) => item !== gap) : [...current, gap]));
+
+  const editMessage = (next: string) => {
+    setMessage(next);
+    setEdited(true);
   };
 
   useEffect(() => {
@@ -140,7 +167,7 @@ function TalentLens() {
         <CandidateReview candidate={candidate} />
         <aside className="hidden lg:block">
           <div className="sticky top-[92px]">
-            <Cockpit candidate={candidate} tone={tone} message={message} processing={processing} overridden={overridden} sent={sent} onTone={regenerate} onMessage={setMessage} onOverride={() => setOverridden(!overridden)} onRegenerate={() => regenerate(tone)} onSend={() => setSent(true)} />
+            <Cockpit candidate={candidate} tone={tone} message={message} processing={processing} overrides={overrides} edited={edited} sent={sent} onTone={regenerate} onMessage={editMessage} onOverride={toggleOverride} onRegenerate={() => regenerate(tone)} onSend={() => setSent(true)} />
           </div>
         </aside>
       </main>
@@ -162,7 +189,7 @@ function TalentLens() {
             <Button variant="ghost" size="icon" className="absolute right-3 top-3" onClick={() => setDrawerOpen(false)} aria-label="Close">
               <X className="size-4" />
             </Button>
-            <Cockpit candidate={candidate} tone={tone} message={message} processing={processing} overridden={overridden} sent={sent} onTone={regenerate} onMessage={setMessage} onOverride={() => setOverridden(!overridden)} onRegenerate={() => regenerate(tone)} onSend={() => setSent(true)} />
+            <Cockpit candidate={candidate} tone={tone} message={message} processing={processing} overrides={overrides} edited={edited} sent={sent} onTone={regenerate} onMessage={editMessage} onOverride={toggleOverride} onRegenerate={() => regenerate(tone)} onSend={() => setSent(true)} />
           </div>
         </div>
       )}
@@ -241,13 +268,32 @@ function CandidateReview({ candidate }: { candidate: Candidate }) {
           {candidate.projects.map((project, index) => <button key={project} className={`rounded-md px-2.5 py-1.5 text-xs ring-1 transition-colors ${index === 0 ? "bg-accent/10 text-accent ring-accent/20" : "bg-paper text-sub ring-line hover:text-ink"}`}>{project}</button>)}
         </div>
       </section>
+
+      <section className="tl-rise rounded-lg bg-surface/75 p-4 ring-1 ring-line backdrop-blur-md sm:p-5 [animation-delay:180ms]">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase text-sub"><Layers className="size-3.5" /> Verified project evidence</h2>
+          <span className="font-mono text-[11px] text-faint">{candidate.evidence.length} reviewed</span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {candidate.evidence.map((item) => (
+            <article key={item.name} className="rounded-lg bg-paper/70 p-3 ring-1 ring-line">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="min-w-0 truncate text-sm font-semibold">{item.name}</h3>
+                <Check className="size-3.5 shrink-0 text-accent" aria-hidden />
+              </div>
+              <p className="mt-1.5 text-xs leading-5 text-sub">{item.desc}</p>
+              <p className="mt-2 font-mono text-[10px] uppercase text-faint">{item.tech}</p>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
 
-type CockpitProps = { candidate: Candidate; tone: Tone; message: string; processing: boolean; overridden: boolean; sent: boolean; onTone: (tone: Tone) => void; onMessage: (message: string) => void; onOverride: () => void; onRegenerate: () => void; onSend: () => void };
+type CockpitProps = { candidate: Candidate; tone: Tone; message: string; processing: boolean; overrides: string[]; edited: boolean; sent: boolean; onTone: (tone: Tone) => void; onMessage: (message: string) => void; onOverride: (gap: string) => void; onRegenerate: () => void; onSend: () => void };
 
-function Cockpit({ candidate, tone, message, processing, overridden, sent, onTone, onMessage, onOverride, onRegenerate, onSend }: CockpitProps) {
+function Cockpit({ candidate, tone, message, processing, overrides, edited, sent, onTone, onMessage, onOverride, onRegenerate, onSend }: CockpitProps) {
   return (
     <section className="rounded-lg bg-surface/80 p-4 ring-1 ring-line backdrop-blur-md sm:p-5">
       <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
@@ -261,19 +307,31 @@ function Cockpit({ candidate, tone, message, processing, overridden, sent, onTon
       </div>
 
       <div className="mt-3 rounded-lg bg-paper/70 p-3 ring-1 ring-line">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-          <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold uppercase text-warm"><AlertTriangle className="size-3.5 shrink-0" /> Gaps</span>
-          <Button variant="warning" size="sm" className="h-7 shrink-0 px-2 font-mono text-[9px] uppercase" onClick={onOverride}>{overridden ? "Overridden" : "Low confidence · Override"}</Button>
-        </div>
-        <p className={`mt-2 text-xs leading-5 ${overridden ? "text-faint line-through" : "text-sub"}`}>{candidate.gap}</p>
+        <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold uppercase text-warm"><AlertTriangle className="size-3.5 shrink-0" /> Gaps</span>
+        <ul className="mt-2 space-y-2.5">
+          {candidate.gaps.map((gap) => {
+            const isOverridden = overrides.includes(gap.text);
+            return (
+              <li key={gap.text} className="space-y-1.5 border-t border-line pt-2.5 first:border-0 first:pt-0">
+                <p className={`text-xs leading-5 ${isOverridden ? "text-faint line-through" : "text-sub"}`}>{gap.text}</p>
+                {gap.confidence === "low" ? (
+                  <Button variant="warning" size="sm" className="h-7 px-2 font-mono text-[9px] uppercase" onClick={() => onOverride(gap.text)}>{isOverridden ? "Overridden by you" : "Low confidence · Override"}</Button>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-paper px-2 py-1 font-mono text-[9px] uppercase text-faint ring-1 ring-line">High confidence</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </div>
+
 
       <div className="mt-4 grid grid-cols-3 rounded-lg bg-paper p-0.5 ring-1 ring-line" aria-label="Outreach tone">
         {tones.map((item) => <Button key={item} variant="ghost" onClick={() => onTone(item)} disabled={processing} className={`h-auto min-h-10 whitespace-normal px-1.5 py-2 text-[10px] leading-tight ${tone === item ? "bg-surface text-ink shadow-sm ring-1 ring-line" : "text-sub"}`}>{item}</Button>)}
       </div>
 
       <div className="mt-3">
-        <div className="mb-2 flex items-center justify-between"><label htmlFor="outreach-message" className="font-mono text-[10px] uppercase text-faint">Outreach draft · editable</label>{processing && <span className="flex items-center gap-1 font-mono text-[9px] text-accent"><LoaderCircle className="size-3 animate-spin" /> STREAMING</span>}</div>
+        <div className="mb-2 flex items-center justify-between gap-2"><label htmlFor="outreach-message" className="font-mono text-[10px] uppercase text-faint">Outreach draft · editable</label>{processing ? <span className="flex items-center gap-1 font-mono text-[9px] text-accent"><LoaderCircle className="size-3 animate-spin" /> STREAMING</span> : edited && <span className="flex items-center gap-1 rounded-md bg-cool/10 px-2 py-0.5 font-mono text-[9px] uppercase text-cool"><PencilLine className="size-3" /> Human edited</span>}</div>
         {processing ? <div className="min-h-40 rounded-lg bg-surface p-3 ring-1 ring-line"><SkeletonLines large /></div> : <div className="relative"><textarea id="outreach-message" value={message} onChange={(event) => onMessage(event.target.value)} className="min-h-40 w-full resize-none rounded-lg bg-surface p-3 pr-5 text-sm leading-6 text-ink outline-none ring-1 ring-line focus:ring-2 focus:ring-accent" /><span className="tl-cursor pointer-events-none absolute bottom-4 right-3 h-4 w-1 bg-ink" /></div>}
       </div>
 
